@@ -1,0 +1,35 @@
+[
+  {
+    "name": "search",
+    "image": "ghcr.io/formancehq/search:v0.2.4",
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "hostPort": 8080
+      }
+    ],
+    "environment": [
+      { "name" : "OPEN_SEARCH_SCHEME", "value" : "https" },
+      { "name" : "OPEN_SEARCH_SERVICE", "value" : "${opensearch_url}" },
+      { "name" : "ES_INDICES", "value" : "formance"}
+    ],
+    "dockerLabels":
+    {
+      "traefik.enable": "true",
+      "traefik.http.routers.search.rule": "Host(`${alb_endpoint}`) && PathPrefix(`/api/search`)",
+      "traefik.http.routers.search.entrypoints": "http",
+      "traefik.http.services.search.loadbalancer.server.port": "8080",
+      "traefik.http.routers.search.middlewares": "search@ecs,cors@ecs",
+      "traefik.http.middlewares.search.stripprefix.prefixes": "/api/search"
+    },
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/ecs/formance",
+        "awslogs-region": "eu-west-1",
+        "awslogs-stream-prefix": "search"
+      }
+    }
+  }
+]

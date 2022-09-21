@@ -1,0 +1,35 @@
+[
+  {
+    "name": "gateway",
+    "image": "traefik:v2.8.5",
+    "entryPoint": ["traefik", "--providers.ecs.clusters", "${ecs_cluster_name}", "--log.level", "DEBUG", "--providers.ecs.region", "${region}", "--api.insecure"],
+    "essential": true,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/ecs/formance",
+        "awslogs-region": "eu-west-1",
+        "awslogs-stream-prefix": "gateway"
+      }
+    },
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 80
+      },
+      {
+        "containerPort": 8080,
+        "hostPort": 8080
+      }
+    ],
+    "dockerLabels":
+    {
+      "traefik.enable": "true",
+      "traefik.http.middlewares.cors.headers.accesscontrolallowmethods": "GET,OPTIONS,PUT,POST,DELETE,HEAD,PATCH",
+      "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist": "*",
+      "traefik.http.middlewares.cors.headers.accessControlAllowHeaders": "content-type",
+      "traefik.http.middlewares.cors.headers.accesscontrolmaxage": "100",
+      "traefik.http.middlewares.cors.headers.addvaryheader": "true"
+    }
+  }
+]

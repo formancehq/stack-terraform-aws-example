@@ -1,0 +1,34 @@
+[
+  {
+    "name": "control",
+    "image": "ghcr.io/formancehq/control:v1.3.0-beta.1",
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 3000,
+        "hostPort": 3000
+      }
+    ],
+    "environment": [
+      { "name" : "API_URL_BACK", "value" : "${api_endpoint}" },
+      { "name" : "API_URL_FRONT", "value" : "${api_endpoint}" },
+      { "name" : "HOST", "value" : "0.0.0.0" }
+    ],
+    "dockerLabels":
+    {
+      "traefik.enable": "true",
+      "traefik.http.routers.control.rule": "Host(`${alb_endpoint}`)",
+      "traefik.http.routers.control.entrypoints": "http",
+      "traefik.http.services.control.loadbalancer.server.port": "3000",
+      "traefik.http.routers.control.middlewares": "cors@ecs"
+    },
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/ecs/formance",
+        "awslogs-region": "eu-west-1",
+        "awslogs-stream-prefix": "control"
+      }
+    }
+  }
+]

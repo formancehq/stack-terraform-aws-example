@@ -1,0 +1,34 @@
+[
+  {
+    "name": "search-ingester",
+    "image": "ghcr.io/formancehq/search-ingester:v0.2.4",
+    "essential": true,
+    "command": ["-c", "/config/config_sasl.yml"],
+    "environment": [
+      { "name" : "KAFKA_ADDRESS", "value" : "${msk_brokers}" },
+      { "name" : "KAFKA_TOPIC", "value" : "ledger,payments" },
+      { "name" : "KAFKA_VERSION", "value" : "3.0.0" },
+      { "name" : "KAFKA_CONSUMER_GROUP", "value" : "search-ingester" },
+      { "name" : "KAFKA_SASL_MECHANISM", "value" : "SCRAM-SHA-512" },
+      { "name" : "KAFKA_USER", "value" : "${msk_username}" },
+      { "name" : "KAFKA_PASSWORD", "value" : "${msk_password}" },
+      { "name" : "OPENSEARCH_URL", "value" : "${opensearch_url}" },
+      { "name" : "OPENSEARCH_INDEX", "value" : "formance"},
+      { "name" : "OPENSEARCH_TLS_ENABLED", "value" : "true"},
+      { "name" : "OPENSEARCH_TLS_SKIP_CERT_VERIFY", "value" : "true"},
+      { "name" : "OPENSEARCH_BASIC_AUTH_ENABLED", "value" : "false"}
+    ],
+    "dockerLabels":
+    {
+      "traefik.enable": "false"
+    },
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/ecs/formance",
+        "awslogs-region": "eu-west-1",
+        "awslogs-stream-prefix": "search-ingester"
+      }
+    }
+  }
+]

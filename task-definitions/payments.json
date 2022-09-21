@@ -1,0 +1,42 @@
+[
+  {
+    "name": "payments",
+    "image": "ghcr.io/formancehq/payments:v0.1.3",
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "hostPort": 8080
+      }
+    ],
+    "environment": [
+      { "name" : "MONGODB_URI", "value" : "${mongodb_uri}" },
+      { "name" : "PUBLISHER_KAFKA_ENABLED", "value" : "true" },
+      { "name" : "PUBLISHER_KAFKA_BROKER", "value" : "${msk_brokers}" },
+      { "name" : "PUBLISHER_TOPIC_MAPPING", "value" : "*:payments" },
+      { "name" : "PUBLISHER_KAFKA_SASL_ENABLED", "value" : "true" },
+      { "name" : "PUBLISHER_KAFKA_TLS_ENABLED", "value" : "true" },
+      { "name" : "PUBLISHER_KAFKA_SASL_MECHANISM", "value" : "SCRAM-SHA-512" },
+      { "name" : "PUBLISHER_KAFKA_SASL_SCRAM_SHA_SIZE", "value" : "512" },
+      { "name" : "PUBLISHER_KAFKA_SASL_USERNAME", "value" : "${msk_username}" },
+      { "name" : "PUBLISHER_KAFKA_SASL_PASSWORD", "value" : "${msk_password}" }
+    ],
+    "dockerLabels":
+    {
+      "traefik.enable": "true",
+      "traefik.http.routers.payments.rule": "Host(`${alb_endpoint}`) && PathPrefix(`/api/payments`)",
+      "traefik.http.routers.payments.entrypoints": "http",
+      "traefik.http.services.payments.loadbalancer.server.port": "8080",
+      "traefik.http.routers.payments.middlewares": "payments@ecs,cors@ecs",
+      "traefik.http.middlewares.payments.stripprefix.prefixes": "/api/payments"
+    },
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/ecs/formance",
+        "awslogs-region": "eu-west-1",
+        "awslogs-stream-prefix": "payments"
+      }
+    }
+  }
+]
